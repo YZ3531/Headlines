@@ -1,5 +1,6 @@
 <template>
-    <div class="container">
+    <div class="container-home">
+        哈哈哈哈
     </div>
 </template>
 
