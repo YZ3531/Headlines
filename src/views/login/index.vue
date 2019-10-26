@@ -2,19 +2,23 @@
   <div class="container">
     <el-card class="box">
       <img src="../../assets/logo_index.png" width="200px" style="display:block;margin:0 auto 30px"  alt />
-      <el-form ref="form" :model="form">
-        <el-form-item>
-          <el-input v-model="form.phone" placeholder="请输入手机号"></el-input>
+
+      <el-form ref="form" :model="form" :rules="rules">
+        <el-form-item  prop="mobile">
+          <el-input v-model="form.mobile" placeholder="请输入手机号"></el-input>
         </el-form-item>
-        <el-form-item>
+
+        <el-form-item  prop="code">
           <el-input v-model="form.code" placeholder="请输入验证码" style="width:235px;margin-right:10px"></el-input>
-          <el-button float="right">发送验证码</el-button>
+          <el-button @click="send" float="right">发送验证码</el-button>
         </el-form-item>
         <el-form-item>
-          <el-checkbox v-model="read" >我已阅读并同意用户协议和隐私条款</el-checkbox>
+          <el-checkbox v-model="readAndAgree" >我已阅读并同意用户协议和隐私条款</el-checkbox>
         </el-form-item>
       </el-form>
-      <el-button :disabled="disab" type="primary" style="width:100%">立即登录</el-button>
+
+      <el-button
+       @click="login" :disabled="disab" type="primary" style="width:100%">立即登录</el-button>
     </el-card>
   </div>
 </template>
@@ -22,19 +26,56 @@
 <script>
 export default {
   data () {
+    const formatMobile = (rule, value, callback) => {
+      // 正则匹配是否为手机号
+      if ((/^1[3-9]\d{9}$/.test(this.form.mobile))) {
+        callback()
+      } else {
+        callback(new Error('手机号格式不对哦！'))
+      }
+    }
     return {
+      readAndAgree: true,
       form: {
-        phone: '',
+        mobile: '',
         code: ''
       },
-      read: true
+      rules: {
+        mobile: [
+          { required: true, message: '手机号不可为空', trigger: 'blur' },
+          { validator: formatMobile, trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '验证码不可为空', trigger: 'blur' },
+          { len: 6, message: '验证码格式不对', trigger: 'blur' }
+        ]
+      }
+    }
+  },
+  methods: {
+    login () {
+      this.$refs['form'].validate((valid) => {
+        if (valid) {
+          this.$http.post('authorizations', this.form).then(res => {
+            console.log(res)
+
+            this.$router.push('/')
+          }).catch(() => {
+            this.$message.error('手机号或验证码错误')
+          })
+        }
+      })
+    },
+    send () {
     }
   },
   computed: {
+    // 计算属性-有没有勾选已阅读
     disab () {
-      return !this.read
+      return !this.readAndAgree
     }
   }
+
 }
 </script>
 
@@ -42,8 +83,7 @@ export default {
 .container {
   width: 100%;
   height: 100%;
-  /* 设置背景图 不平铺 居中 全屏显示 */
-  background: url("../../assets/login_bg.jpg") no-repeat center / cover;
+  background: url("../../assets/login_bg.jpg") no-repeat center / cover;/* 设置背景图 不平铺 居中 全屏显示 */
   position: absolute;
   left: 0;
   top: 0;
