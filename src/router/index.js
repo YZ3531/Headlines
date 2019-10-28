@@ -1,9 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router' // 引入路由组件
+import local from '@/utils/local' // 引入状态工具
 import login from '@/views/login' // 登陆
 import home from '@/views/home' // 主页
-import welcome from '@/views/welcome'
-import notFond from '@/views/404'
+import welcome from '@/views/welcome' // 欢迎页面
+import notFond from '@/views/404' // 404页面
+
 Vue.use(VueRouter) // 使用路由组件
 const router = new VueRouter({
   routes: [
@@ -26,4 +28,19 @@ const router = new VueRouter({
     }
   ]
 })
+
+// 路由前置导航守卫,检测是否登录
+router.beforeEach((to, from, next) => {
+  const user = local.getUser()
+  if (user && user.token) { // session中有键且值为token
+    next() // 放过
+  } else {
+    if (to.path === '/login') { // 没有token但是是去登录页面的
+      next() // 放过
+    } else {
+      next('/login') // 没有token还不是去登录页面的,强制去登录页面
+    }
+  }
+})
+
 export default router // 导出路由

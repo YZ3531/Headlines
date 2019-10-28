@@ -10,7 +10,7 @@
 
         <el-form-item  prop="code">
           <el-input v-model="form.code" placeholder="请输入验证码" style="width:235px;margin-right:10px"></el-input>
-          <el-button @click="send" float="right">发送验证码</el-button>
+          <el-button plain @click="send" float="right">发送验证码</el-button>
         </el-form-item>
         <el-form-item>
           <el-checkbox v-model="readAndAgree" >我已阅读并同意用户协议和隐私条款</el-checkbox>
@@ -24,6 +24,7 @@
 </template>
 
 <script>
+import local from '@/utils/local'
 export default {
   data () {
     const formatMobile = (rule, value, callback) => {
@@ -57,8 +58,9 @@ export default {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           this.$http.post('authorizations', this.form).then(res => {
-            console.log(res)
-
+            // 登录成功,设置token,保持登录状态
+            local.setUser(res.data.data)
+            // 页面跳转
             this.$router.push('/')
           }).catch(() => {
             this.$message.error('手机号或验证码错误')
@@ -67,6 +69,12 @@ export default {
       })
     },
     send () {
+      const h = this.$createElement
+      this.$notify({
+        title: '温馨提示',
+        message: h('span', { style: 'color: green' }, '验证码为:' + '246810'),
+        duration: 0
+      })
     }
   },
   computed: {

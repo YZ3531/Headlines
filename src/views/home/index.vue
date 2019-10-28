@@ -51,7 +51,7 @@
 
         <el-dropdown class="dropdown">
           <span class="el-dropdown-link">
-            <img src="../../assets/avatar.jpg" class="headIcon" />用户名
+            <img :src="userAvatar" class="headIcon" />{{userName}}
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
@@ -74,9 +74,19 @@
 
 <script>
 export default {
+  created () {
+    this.$http.get('user/profile').then(res => {
+      this.userName = res.data.data.name
+      this.userAvatar = res.data.data.photo
+    }).catch(err => {
+      console.log(err)
+    })
+  },
   data () {
     return {
-      isOpen: true
+      isOpen: true,
+      userName: '',
+      userAvatar: ''
     }
   },
   methods: {
