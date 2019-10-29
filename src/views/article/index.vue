@@ -1,10 +1,8 @@
 <template>
   <el-card class="box-card">
     <div slot="header">
-      <el-breadcrumb separator-class="el-icon-arrow-right">
-        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-        <el-breadcrumb-item>内容管理</el-breadcrumb-item>
-      </el-breadcrumb>
+        <!-- 调用全局自定义组件my-bread并将内容传进留的坑里面 -->
+      <my-bread>内容管理</my-bread>
     </div>
     <el-form size="small" label-width="80px">
       <el-form-item label="状态:">
