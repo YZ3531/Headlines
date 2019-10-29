@@ -5,6 +5,12 @@ import login from '@/views/login' // 登陆
 import home from '@/views/home' // 主页
 import welcome from '@/views/welcome' // 欢迎页面
 import notFond from '@/views/404' // 404页面
+import article from '@/views/article' // 文章管理页面
+import image from '@/views/image' // 素材管理页面
+import publish from '@/views/publish' // 发布文章页面
+import comment from '@/views/comment' // 评论管理页面
+import fans from '@/views/fans' // 粉丝管理页面
+import setting from '@/views/setting' // 个人设置页面
 
 Vue.use(VueRouter) // 使用路由组件
 const router = new VueRouter({
@@ -16,10 +22,13 @@ const router = new VueRouter({
       path: '/',
       component: home,
       children: [
-        {
-          path: '',
-          component: welcome
-        }
+        { path: '', component: welcome },
+        { path: '/article', component: article },
+        { path: '/image', component: image },
+        { path: '/publish', component: publish },
+        { path: '/comment', component: comment },
+        { path: '/fans', component: fans },
+        { path: '/setting', component: setting }
       ]
     },
     {
