@@ -55,16 +55,26 @@ export default {
   },
   methods: {
     login () {
-      this.$refs['form'].validate((valid) => {
+      this.$refs['form'].validate(async valid => {
         if (valid) {
-          this.$http.post('authorizations', this.form).then(res => {
-            // 登录成功,设置token,保持登录状态
-            local.setUser(res.data.data)
-            // 页面跳转
+          /** *******************************promise写法***********************************/
+          // this.$http.post('authorizations', this.form).then(res => {
+          //   // 登录成功,设置token,保持登录状态
+          //   local.setUser(res.data.data)
+          //   // 页面跳转
+          //   this.$router.push('/')
+          // }).catch(() => {
+          //   this.$message.error('手机号或验证码错误')
+          // })
+          /** ********************************async与await写法*****************************/
+          try {
+            const { data: { data } } = await this.$http.post('authorizations', this.form)
+            local.setUser(data)
             this.$router.push('/')
-          }).catch(() => {
+          } catch (e) {
+            // console.log(e)
             this.$message.error('手机号或验证码错误')
-          })
+          }
         }
       })
     },

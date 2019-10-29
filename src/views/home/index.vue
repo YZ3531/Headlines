@@ -11,7 +11,7 @@
         :collapse-transition="false"
         router
       >
-      <!-- 关闭合起动画:collapse-transition="false" -->
+        <!-- 关闭合起动画:collapse-transition="false" -->
         <el-menu-item index="/">
           <i class="el-icon-s-home"></i>
           <span slot="title">首页</span>
@@ -49,16 +49,17 @@
         <span class="el-icon-s-fold" @click="toggleMenu"></span>
         <span>江苏传智播客科技教育有限公司</span>
 
-        <el-dropdown class="dropdown">
+        <el-dropdown class="dropdown" @command="handleClick">
           <span class="el-dropdown-link">
-            <img :src="userAvatar" class="headIcon" />{{userName}}
+            <img :src="userInfo.photo" class="headIcon" />
+            {{userInfo.name}}
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>
+            <el-dropdown-item command="setting">
               <i class="el-icon-setting"></i>个人设置
             </el-dropdown-item>
-            <el-dropdown-item>
+            <el-dropdown-item command="logout">
               <i class="el-icon-unlock"></i>退出登陆
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -73,25 +74,52 @@
 </template>
 
 <script>
+import local from '@/utils/local'
 export default {
   created () {
-    this.$http.get('user/profile').then(res => {
-      this.userName = res.data.data.name
-      this.userAvatar = res.data.data.photo
-    }).catch(err => {
-      console.log(err)
-    })
+    // 读取本地用户信息部分
+    const user = local.getUser()
+    this.userInfo.name = user.name
+    this.userInfo.photo = user.photo
   },
   data () {
     return {
       isOpen: true,
-      userName: '',
-      userAvatar: ''
+      userInfo: {}
     }
   },
   methods: {
+    // 切换导航菜单状态
     toggleMenu () {
       this.isOpen = !this.isOpen
+    },
+    // 登出功能
+    logout () {
+      this.$confirm('你确定要退出吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '退出成功!'
+        })
+        local.delUser()
+        this.$router.push('/login')
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
+      })
+    },
+    // 用户设置
+    setting () {
+      this.$router.push('/setting')
+    },
+    // 将传递过来的值作为调用的函数名调用
+    handleClick (comment) {
+      this[comment]()
     }
   }
 }
