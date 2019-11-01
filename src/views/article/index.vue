@@ -21,14 +21,8 @@
         </el-form-item>
         <!-- 频道组件 -->
         <el-form-item label="频道:">
-          <el-select v-model="reqParams.channel_id" placeholder="请选择" clearable>
-            <el-option
-              v-for="item in channelOptions"
-              :value="item.id"
-              :label="item.name"
-              :key="item.id"
-            ></el-option>
-          </el-select>
+          <!-- 使用自己封装的全局频道组件 -->
+          <my-channel v-model="reqParams.channel_id"></my-channel>
         </el-form-item>
         <!-- 日期组件 -->
         <el-form-item label="日期:">
@@ -132,10 +126,6 @@ export default {
         page: null,
         per_page: 20
       },
-      channelOptions: [
-        { value: 1, label: 'java' },
-        { value: 2, label: '前端' }
-      ],
       // 所有文章的列表
       articles: [],
       // 文章总条数
@@ -153,13 +143,6 @@ export default {
         this.reqParams.begin_pubdate = null
         this.reqParams.end_pubdate = null
       }
-    },
-    // 获取频道列表数据
-    async getChannelOptions () {
-      const {
-        data: { data }
-      } = await this.$http.get('channels')
-      this.channelOptions = data.channels
     },
     // 获取文章列表
     async getArticles () {
@@ -211,8 +194,6 @@ export default {
     }
   },
   created () {
-    // 默认打开获取一次频道列表数据
-    this.getChannelOptions()
     // 默认打开获取一次所有文章的列表数据
     this.getArticles()
   }
