@@ -9,7 +9,7 @@
         <el-radio-button :label="false">全部</el-radio-button>
         <el-radio-button :label="true">收藏</el-radio-button>
       </el-radio-group>
-      <el-button @click="dialogVisible = true" style="float:right" type="success" size="small">添加素材</el-button>
+      <el-button @click="open" style="float:right" type="success" size="small">添加素材</el-button>
       <!-- 图片区域 -->
       <div class="img_list">
         <div v-for="item in imgList" :key="item.id" class="img_item">
@@ -42,8 +42,8 @@
         class="avatar-uploader"
         action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
         :show-file-list="false"
-        :on-success="getURL"
-        :headers="header"
+        :on-success="handleSuccess"
+        :headers="headers"
         name="image"
       >
         <img v-if="imageUrl" :src="imageUrl" class="avatar" />
@@ -54,6 +54,7 @@
 </template>
 
 <script>
+import local from '@/utils/local.js'
 export default {
   data () {
     return {
@@ -65,11 +66,16 @@ export default {
       total: 0, // 数据总条数,控制分页有多少页
       imgList: [], // 图片列表,默认为空,请求回来就会存入数据
       dialogVisible: false, // 上传素材页面默认隐藏
-      imageUrl: '', // 上传素材路径
-      header: { Authorization: `Bearer ${JSON.parse(window.sessionStorage.getItem('hm-user')).token}` }
+      imageUrl: null, // 上传素材路径
+      headers: { Authorization: `Bearer ${local.getUser().token}` }
     }
   },
   methods: {
+    // 打开对话框
+    open () {
+      this.dialogVisible = true
+      this.imageUrl = null
+    },
     // 获取图片列表
     async getImages () {
       const {
@@ -77,7 +83,6 @@ export default {
       } = await this.$http.get('user/images', { params: this.reqParams })
       this.imgList = data.results // 将取到的图片列表给imgList,然后去渲染
       this.total = data.total_count // 将图片总数量给total,然后去产生分页
-      console.log(data)
     },
     // 分页切换
     pager (newPage) {
@@ -89,7 +94,7 @@ export default {
       this.reqParams.page = 1 // 请求的页码归为第一页
       this.getImages() // 发送请求
     },
-    // 收藏的切换
+    // 星星的切换
     async toggleStatus (item) {
       // 发送更改状态请求,携带头参数(当前ID),体参数(是否收藏-状态),解构出响应体里面的信息
       const {
@@ -124,9 +129,13 @@ export default {
         })
     },
     // 添加素材
-    getURL (res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw) // 将url存储到到本地的imageUrl
-      this.getImages() // 刷新
+    handleSuccess (res) {
+      this.imageUrl = res.data.url // 将url存储到到本地的imageUrl
+      this.$message.success('上传成功')
+      window.setTimeout(() => {
+        this.dialogVisible = false
+        this.getImages() // 刷新
+      }, 2000)
     }
   },
   created () {

@@ -38,8 +38,8 @@ export default {
     return {
       readAndAgree: true,
       form: {
-        mobile: '',
-        code: ''
+        mobile: '13200000000',
+        code: '246810'
       },
       rules: {
         mobile: [
