@@ -83,6 +83,7 @@ export default {
       } = await this.$http.get('user/images', { params: this.reqParams })
       this.imgList = data.results // 将取到的图片列表给imgList,然后去渲染
       this.total = data.total_count // 将图片总数量给total,然后去产生分页
+      console.log(data)
     },
     // 分页切换
     pager (newPage) {
