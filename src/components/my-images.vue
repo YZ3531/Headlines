@@ -3,7 +3,8 @@
   <div class="my-image">
     <!-- 按钮 -->
     <div class="btn-image" @click="open">
-      <img src="../assets/default.png" />
+      <!-- 显示图片=> 编辑图||默认图 -->
+      <img :src="value||btnImage" />
     </div>
     <!-- 对话框 -->
     <el-dialog :visible.sync="dialogVisible" width="750px">
@@ -47,15 +48,15 @@
             :headers="headers"
             name="image"
           >
-            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <img v-if="uploadImageUrl" :src="uploadImageUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-tab-pane>
       </el-tabs>
       <!-- 底部按钮 -->
       <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="confirmImage">确 定</el-button>
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -63,13 +64,15 @@
 
 <script>
 import local from '@/utils/local.js'
+import defaultImage from '../assets/default.png' // 引入默认图片来绑定,解决数据中引用无法显示问题
 export default {
-  props: ['images'],
+  props: ['value'],
   data () {
     return {
+      btnImage: defaultImage,
       dialogVisible: false, // 控制对话框的显示与隐藏
       activeName: 'image', // 切换素材库与上传图片（默认显示素材库内容）
-      selectedImageURL: null, // 选中的图片地址
+      selectedImageURL: null, // 素材库图片地址
       // 素材库所用数据
       reqParams: {
         collect: false, // 全部/收藏 状态区分
@@ -79,15 +82,36 @@ export default {
       total: 0, // 数据总条数,控制分页有多少页
       imgList: [], // 图片列表,默认为空,请求回来就会存入数据
       // 上传图片所用数据
-      imageUrl: null, // 上传素材路径
+      uploadImageUrl: null, // 上传素材图片路径
       headers: { Authorization: `Bearer ${local.getUser().token}` }
     }
   },
   methods: {
+    // 判断点击的是 素材库/上传图片
+    confirmImage () {
+      if (this.activeName === 'image') {
+        if (!this.selectedImageURL) {
+          return this.$message.warning('请选择一张素材')
+        }
+        // 提交给父组件本次选择素材库图片URL
+        this.$emit('input', this.selectedImageURL)
+        this.dialogVisible = false
+      } else {
+        if (!this.uploadImageUrl) {
+          return this.$message.warning('请上传一张素材')
+        }
+        // 提交给父组件本次上传图片URL
+        this.$emit('input', this.uploadImageUrl)
+
+        this.dialogVisible = false
+      }
+    },
+    // 将素材库中被点击图片路径存到selectedImageURL中
     selectedImage (url) {
       // 点击选中图片
       this.selectedImageURL = url
     },
+    // 对话框
     open () {
       this.dialogVisible = true
       this.activeName = 'image'
@@ -113,7 +137,7 @@ export default {
     },
     // 添加素材
     handleSuccess (res) {
-      this.imageUrl = res.data.url // 将url存储到到本地的imageUrl
+      this.uploadImageUrl = res.data.url // 将url存储到到本地的uploadImageUrl
       this.$message.success('上传成功')
     }
   }
