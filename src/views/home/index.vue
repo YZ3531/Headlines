@@ -75,6 +75,7 @@
 
 <script>
 import local from '@/utils/local'
+import eventBus from '@/eventBus'
 export default {
   created () {
     // 读取本地用户信息部分
@@ -85,7 +86,10 @@ export default {
   data () {
     return {
       isOpen: true,
-      userInfo: {}
+      userInfo: {
+        name: null,
+        photo: null
+      }
     }
   },
   methods: {
@@ -121,6 +125,14 @@ export default {
     handleClick (comment) {
       this[comment]()
     }
+  },
+  mounted () {
+    eventBus.$on('updateName', (name) => {
+      this.userInfo.name = name
+    })
+    eventBus.$on('updatePhoto', (photo) => {
+      this.userInfo.photo = photo
+    })
   }
 }
 </script>
