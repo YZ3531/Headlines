@@ -18,7 +18,8 @@ const router = new VueRouter({
     {
       path: '/login',
       component: login
-    }, {
+    },
+    {
       path: '/',
       component: home,
       children: [
